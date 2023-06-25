@@ -11,7 +11,6 @@ import com.ably.repository.ProductRepository;
 import com.ably.repository.WishDrawRespository;
 import com.ably.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +25,11 @@ public class WishService {
 
     private final WishMapper wishMapper;
 
-    public void saveWish(Long memberId, WishSaveRequest request){
+    public void saveWish(WishSaveRequest request){
         var product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ApiException(ApiError.NOT_EXIST_DATA));
 
-        wishDrawRespository.findByIdAndMember_Id(request.getWishDrawId(), memberId)
+        wishDrawRespository.findByIdAndMember_Id(request.getWishDrawId(), request.getMemberId())
                 .ifPresent(wishDraw -> wishDraw.addWish(Wish.createWish(product)));
     }
 
@@ -41,7 +40,7 @@ public class WishService {
 
     @Transactional(readOnly = true)
     public WishSearchResponse searchWish(WishSearchRequest request){
-        var wishSlice = wishRepository.findAllByWishDraw_Id(request.getWishDrawId(), PageRequest.of(request.getPage(), request.getLimit()));
+        var wishSlice = wishRepository.findWishPagingList(request);
         return wishMapper.toResponse(wishSlice);
     }
 }

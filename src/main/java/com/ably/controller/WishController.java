@@ -24,13 +24,16 @@ public class WishController {
             @AuthMemberId Long memberId,
             @RequestBody @Valid WishSaveRequest request
     ) {
-        wishService.saveWish(memberId, request);
+        request.setMemberId(memberId);
+        wishService.saveWish(request);
     }
 
     @GetMapping
     public ResponseEntity<WishSearchResponse> searchWish(
+            @AuthMemberId Long memberId,
             WishSearchRequest request
     ){
+        request.setMemberId(memberId);
         return ResponseEntity.ok(wishService.searchWish(request));
     }
 

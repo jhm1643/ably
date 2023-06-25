@@ -23,17 +23,15 @@ public class WishDraw {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Setter
     private Member member;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "wishDraw", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Wish> wishes;
 
-    public static WishDraw createWishDraw(Long memberId, WishDrawSaveRequest request){
+    public static WishDraw createWishDraw(WishDrawSaveRequest request){
         return WishDraw.builder()
-                .member(Member.builder()
-                        .id(memberId)
-                        .build())
                 .name(request.getWishDrawName())
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.ably.dto.wishdraw.response;
 
+import com.ably.dto.wishdraw.WishDrawSearchDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,17 +14,7 @@ import java.util.List;
 @Getter
 public class WishDrawSearchResponse {
 
-    private List<WishDrawResponse> content;
+    private List<WishDrawSearchDto> content;
     private int currentPage;
     private boolean isLast;
-
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    public static class WishDrawResponse {
-        private Long wishDrawId;
-        private String wishDrawName;
-    }
-
 }

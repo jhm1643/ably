@@ -24,7 +24,8 @@ public class WishDrawController {
             @AuthMemberId Long memberId,
             @Valid WishDrawSearchRequest request
     ){
-        return ResponseEntity.ok(wishDrawService.searchWishDraw(memberId, request));
+        request.setMemberId(memberId);
+        return ResponseEntity.ok(wishDrawService.searchWishDraw(request));
     }
 
     @PostMapping
@@ -32,7 +33,8 @@ public class WishDrawController {
             @AuthMemberId Long memberId,
             @RequestBody @Valid WishDrawSaveRequest request
     ){
-        wishDrawService.saveWishDraw(memberId, request);
+        request.setMemberId(memberId);
+        wishDrawService.saveWishDraw(request);
     }
 
     @DeleteMapping("/{wishDrawId}")

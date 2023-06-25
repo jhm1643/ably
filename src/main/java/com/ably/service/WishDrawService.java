@@ -5,9 +5,9 @@ import com.ably.dto.wishdraw.request.WishDrawSearchRequest;
 import com.ably.dto.wishdraw.response.WishDrawSearchResponse;
 import com.ably.entity.WishDraw;
 import com.ably.mapper.wishdraw.WishDrawMapper;
+import com.ably.repository.MemberRepository;
 import com.ably.repository.WishDrawRespository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class WishDrawService {
 
+    private final MemberRepository memberRepository;
     private final WishDrawRespository wishDrawRespository;
     private final WishDrawMapper wishDrawMapper;
 
-    public void saveWishDraw(Long memberId, WishDrawSaveRequest request){
-        wishDrawRespository.save(WishDraw.createWishDraw(memberId, request));
+    public void saveWishDraw(WishDrawSaveRequest request){
+        memberRepository.findById(request.getMemberId())
+                        .ifPresent(member -> member.addWishDraw(WishDraw.createWishDraw(request)));
     }
 
     public void removeWishDraw(Long memberId , Long wishDrawId){
@@ -29,9 +31,7 @@ public class WishDrawService {
     }
 
     @Transactional(readOnly = true)
-    public WishDrawSearchResponse searchWishDraw(Long memberId, WishDrawSearchRequest request){
-        var pageable = PageRequest.of(request.getPage(), request.getLimit());
-        var wishDrawSlice = wishDrawRespository.findAllByMember_Id(memberId, pageable);
-        return wishDrawMapper.toResponse(wishDrawSlice);
+    public WishDrawSearchResponse searchWishDraw(WishDrawSearchRequest request){
+        return wishDrawMapper.toResponse(wishDrawRespository.findWishDrawPagingList(request));
     }
 }

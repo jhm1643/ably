@@ -37,7 +37,7 @@ public class MemberService {
             throw new ApiException(ApiError.ALREADY_EXIST_DATA);
         }
         request.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-        memberRepository.save(Member.createUser(request, RoleType.USER_ROLE));
+        memberRepository.save(Member.createMember(request, RoleType.USER_ROLE));
     }
 
     public JwtTokenResponse signIn(SignInRequest request) {

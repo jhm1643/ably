@@ -21,7 +21,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_SEQ")
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
     @Column
@@ -35,11 +35,16 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WishDraw> wishDraws = new ArrayList<>();
 
-    public static Member createUser(SignUpRequest request, RoleType roleType){
+    public static Member createMember(SignUpRequest request, RoleType roleType){
         return Member.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .role(roleType)
                 .build();
+    }
+
+    public void addWishDraw(WishDraw wishDraw){
+        this.wishDraws.add(wishDraw);
+        wishDraw.setMember(this);
     }
 }

@@ -1,6 +1,6 @@
 package com.ably.dto.wish.response;
 
-import com.ably.entity.Product;
+import com.ably.dto.wish.WishSearchDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,17 +14,7 @@ import java.util.List;
 @Getter
 public class WishSearchResponse {
 
-    private List<WishResponse> content;
+    private List<WishSearchDto> content;
     private int currentPage;
     private boolean isLast;
-
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    public static class WishResponse {
-        private Long wishId;
-        private Product product;
-    }
-
 }

@@ -1,10 +1,12 @@
 package com.ably.dto.wish.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class WishSaveRequest {
 
@@ -13,4 +15,8 @@ public class WishSaveRequest {
 
     @NotNull(message = "찜 서랍 번호는 필수 입니다.")
     private Long wishDrawId;
+
+    @Setter
+    @JsonIgnore
+    private Long memberId;
 }
