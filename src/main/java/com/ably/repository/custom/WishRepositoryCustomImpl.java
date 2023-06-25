@@ -34,6 +34,7 @@ public class WishRepositoryCustomImpl implements WishRepositoryCustom{
                 .from(wish)
                 .innerJoin(wish.product, product)
                 .where(wishSearchProvider(request))
+                .orderBy(wish.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();

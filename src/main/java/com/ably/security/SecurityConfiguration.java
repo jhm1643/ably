@@ -1,25 +1,30 @@
 package com.ably.security;
 
 import com.ably.dto.user.type.RoleType;
+import com.ably.exception.ApiError;
+import com.ably.exception.ApiException;
 import com.ably.repository.MemberRepository;
 import com.ably.security.filter.JwtAuthFilter;
 import com.ably.security.filter.exception.AccessDeniedHandlerImpl;
 import com.ably.security.filter.exception.AuthExceptionHandler;
 import com.ably.security.filter.exception.AuthenticationEntryPointImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -36,31 +41,29 @@ public class SecurityConfiguration {
 
     public HttpSecurity commonConfigure(HttpSecurity http) throws Exception{
         return http
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptionHandling -> {
-                    exceptionHandling.authenticationEntryPoint(authenticationEntryPoint);
-                    exceptionHandling.accessDeniedHandler(accessDeniedHandlerImpl);
+                .httpBasic(e -> e.disable())
+                .cors(e -> e.configurationSource(corsConfigurationSource()))
+                .csrf(e -> e.disable())
+                .sessionManagement(e -> e.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(e -> {
+                    e.authenticationEntryPoint(authenticationEntryPoint);
+                    e.accessDeniedHandler(accessDeniedHandlerImpl);
                 });
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return commonConfigure(http)
-                .authorizeHttpRequests(authorizeHttpRequests ->
-                        authorizeHttpRequests
-                                .anyRequest().hasAuthority(RoleType.USER_ROLE.name()))
+                .authorizeHttpRequests(e -> e.anyRequest().hasAuthority(RoleType.USER_ROLE.name()))
                 .addFilterBefore(new JwtAuthFilter(jwtProvider, authExceptionHandler), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return email -> new AuthUser(memberRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자 정보입니다.")));
-//    }
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return email -> new AuthUser(memberRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(ApiError.NOT_EXIST_DATA, "존재하지 않는 사용자 입니다.")));
+    }
 
     private CorsConfigurationSource corsConfigurationSource() {
 
@@ -75,11 +78,17 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public WebSecurityCustomizer ignoringCustomizer() {
-        return web -> web.ignoring().requestMatchers(
-                AntPathRequestMatcher.antMatcher("/h2-console/**"),
-                AntPathRequestMatcher.antMatcher(baseUrl + "/user/sign-up"),
-                AntPathRequestMatcher.antMatcher(baseUrl + "/user/sign-in"));
+    public WebSecurityCustomizer ignoringCustomizer(){
+        return web -> web.ignoring()
+                .requestMatchers(
+                        PathRequest.toH2Console(),
+                        PathRequest.toStaticResources().atCommonLocations(),
+                        antMatcher("/v3/api-docs/**"),
+                        antMatcher("/swagger-ui/**"),
+                        antMatcher("/swagger-ui.html"),
+                        antMatcher(baseUrl + "/user/sign-up"),
+                        antMatcher(baseUrl + "/user/sign-in")
+                );
     }
 
     @Bean

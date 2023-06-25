@@ -5,8 +5,12 @@ import com.ably.dto.wishdraw.request.WishDrawSaveRequest;
 import com.ably.dto.wishdraw.request.WishDrawSearchRequest;
 import com.ably.dto.wishdraw.response.WishDrawSearchResponse;
 import com.ably.service.WishDrawService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,19 +19,24 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Validated
 @RequestMapping("/ably/api/wish-draw")
+@Tag(name = "WishDraw API")
 public class WishDrawController {
 
     private final WishDrawService wishDrawService;
 
+    @Operation(summary = "찜 서랍 목록 검색")
     @GetMapping
     public ResponseEntity<WishDrawSearchResponse> searchWishDraws(
             @AuthMemberId Long memberId,
+
+            @ParameterObject
             @Valid WishDrawSearchRequest request
     ){
         request.setMemberId(memberId);
         return ResponseEntity.ok(wishDrawService.searchWishDraw(request));
     }
 
+    @Operation(summary = "찜 서랍 생성")
     @PostMapping
     public void saveWishDraw(
             @AuthMemberId Long memberId,
@@ -37,9 +46,12 @@ public class WishDrawController {
         wishDrawService.saveWishDraw(request);
     }
 
+    @Operation(summary = "찜 서랍 삭제")
     @DeleteMapping("/{wishDrawId}")
     public void removeWishDraw(
             @AuthMemberId Long memberId,
+
+            @Schema(description = "찜 서랍 ID")
             @PathVariable Long wishDrawId
     ){
         wishDrawService.removeWishDraw(memberId, wishDrawId);

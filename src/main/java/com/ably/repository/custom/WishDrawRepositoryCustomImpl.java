@@ -28,6 +28,7 @@ public class WishDrawRepositoryCustomImpl implements WishDrawRepositoryCustom {
                 ))
                 .from(wishDraw)
                 .where(wishSearchProvider(request))
+                .orderBy(wishDraw.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();

@@ -34,7 +34,7 @@ public class MemberService {
 
     public void signUp(SignUpRequest request) {
         if(memberRepository.existsByEmail(request.getEmail())) {
-            throw new ApiException(ApiError.ALREADY_EXIST_DATA);
+            throw new ApiException(ApiError.ALREADY_EXIST_DATA, "이미 존재하는 이메일주소 입니다.");
         }
         request.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
         memberRepository.save(Member.createMember(request, RoleType.USER_ROLE));
