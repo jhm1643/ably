@@ -1,10 +1,12 @@
 package com.ably.repository.custom;
 
+import com.ably.dto.common.pagination.type.PaginationType;
 import com.ably.dto.wish.WishSearchDto;
 import com.ably.dto.wish.request.WishSearchRequest;
 import com.ably.util.PagingUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -21,6 +23,8 @@ public class WishRepositoryCustomImpl implements WishRepositoryCustom{
     @Override
     public Slice<WishSearchDto> findWishPagingList(WishSearchRequest request) {
         var pageable = request.getPageable();
+        var paginationType = request.getPaginationType();
+        var limit = paginationType == PaginationType.SCROLL ? pageable.getPageSize() + 1 : pageable.getPageSize();
         var content = queryFactory
                 .select(
                         Projections.fields(
@@ -32,25 +36,24 @@ public class WishRepositoryCustomImpl implements WishRepositoryCustom{
                                 product.price.as("productPrice")
                         ))
                 .from(wish)
-                .innerJoin(wish.product, product)
-                .where(wishSearchProvider(request))
+                .leftJoin(wish.product, product)
+                .where(wishConditionProvider(request))
                 .orderBy(wish.id.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
+                .limit(limit)
                 .fetch();
 
-        return (Slice<WishSearchDto>) PagingUtil.makeSlice(pageable, content);
+        return (Slice<WishSearchDto>) PagingUtil.makeSlice(paginationType, pageable, content, getCount(request));
     }
 
-//    public Long countWish(WishSearchRequest request){
-//        return queryFactory
-//                .select(wish.id)
-//                .from(wish)
-//                .innerJoin(product).on(product.id.eq(wish.product.id))
-//                .where()
-//    }
+    private JPAQuery<Long> getCount(WishSearchRequest request){
+        return queryFactory
+                .select(wish.count())
+                .from(wish)
+                .where(wishConditionProvider(request));
+    }
 
-    public BooleanBuilder wishSearchProvider(WishSearchRequest request){
+    public BooleanBuilder wishConditionProvider(WishSearchRequest request){
         var booleanBuilder = new BooleanBuilder();
         if(anyNotNull(request.getWishDrawId())){
             booleanBuilder.and(wish.wishDraw.id.eq(request.getWishDrawId()));

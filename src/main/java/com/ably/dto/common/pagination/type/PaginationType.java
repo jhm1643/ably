@@ -1,4 +1,4 @@
-package com.ably.dto.common;
+package com.ably.dto.common.pagination.type;
 
 public enum PaginationType {
 

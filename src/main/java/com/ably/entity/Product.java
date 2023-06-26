@@ -29,7 +29,7 @@ public class Product {
     private Long price;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
     private List<Wish> wishes;
 
     public static Product createProduct(ProductSaveRequest request){
