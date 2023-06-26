@@ -17,8 +17,8 @@ public class PaginationRequest {
     @Min(value = 0, message = "페이지 번호는 0이상만 가능 합니다.")
     private int page;
 
-    @Schema(description = "페이지 사이즈", defaultValue = "30")
-    @Max(value = 30, message = "페이지 크기는 30이하만 가능합니다.")
+    @Schema(description = "페이지 사이즈", defaultValue = "10")
+    @Max(value = 10, message = "페이지 크기는 10이하만 가능합니다.")
     private int limit;
 
     @Schema(description = "페이지네이션 유형", defaultValue = "SCROLL")

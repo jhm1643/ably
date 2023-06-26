@@ -14,14 +14,12 @@ import com.opencsv.CSVReader;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,13 +54,13 @@ public class DummyDataService {
                     .role(RoleType.USER_ROLE)
                     .build());
 
-            for (int j = 0; j < 80; j++) {
+            for (int j = 0; j < 50; j++) {
                 var wishDraw = wishDrawRespository.save(WishDraw.builder()
                         .member(member)
                         .name(String.format("draw%s", j))
                         .build());
 
-                for (int k = 10 * j; k < 10 * j + 9; k++) {
+                for (int k = 30 * j; k < 30 * j + 29; k++) {
                     if(k > products.size() - 1) {
                         break;
                     }
@@ -78,11 +76,10 @@ public class DummyDataService {
 
     @SneakyThrows
     public List<String[]> getListByCsv(String fileName){
-        Reader reader = Files.newBufferedReader(Paths.get(
-                ClassLoader.getSystemResource("dummy/" + fileName).toURI()), StandardCharsets.UTF_8);
-        CSVReader csvReader = new CSVReader(reader);
+
+        ClassPathResource resource = new ClassPathResource("dummy/" + fileName);
+        CSVReader csvReader = new CSVReader(new InputStreamReader(resource.getInputStream()));
         List<String[]> list = csvReader.readAll();
-        reader.close();
         csvReader.close();
         list.remove(0);
         return list;

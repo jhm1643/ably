@@ -8,7 +8,8 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "WISH_DRAW", uniqueConstraints = @UniqueConstraint(name = "name_member_unique_01", columnNames = {"name", "member_id"}))
+@Table(name = "WISH_DRAW",
+        uniqueConstraints = @UniqueConstraint(name = "name_member_unique_01", columnNames = {"name", "member_id"}))
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
