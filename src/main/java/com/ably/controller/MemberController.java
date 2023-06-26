@@ -8,6 +8,7 @@ import com.ably.dto.user.response.MemberSearchResponse;
 import com.ably.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/ably/api/user")
+@RequestMapping("/ably/api/member")
 @Tag(name = "Member API")
 public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "회원가입", responses = @ApiResponse(responseCode = "400", description = "이미 존재하는 이메일주소 입니다."))
+    @Operation(summary = "회원가입",
+            responses = @ApiResponse(responseCode = "400", description = "이미 존재하는 이메일주소"))
     @PostMapping("/sign-up")
     public void signUp(
             @Valid @RequestBody SignUpRequest request
@@ -38,6 +40,7 @@ public class MemberController {
         return ResponseEntity.ok(memberService.signIn(request));
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/withdrawal")
     public void withdrawal(
@@ -46,6 +49,7 @@ public class MemberController {
         memberService.withdrawal(memberId);
     }
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "내 정보 검색")
     @GetMapping("/my-info")
     public ResponseEntity<MemberSearchResponse> searchUser(

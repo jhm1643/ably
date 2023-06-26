@@ -32,6 +32,7 @@ public class ApiExceptionHandler {
     public static class ErrorResponse {
         private int code;
         private String message;
+        private String customMessage;
         private List<BindingResultError> bindingErrorMessage;
         private String path;
         private String stackTrace;
@@ -81,6 +82,7 @@ public class ApiExceptionHandler {
                 .body(ErrorResponse.builder()
                         .code(exception.getCode())
                         .message(exception.getMessage())
+                        .customMessage(exception.getCustomMessage())
                         .build());
     }
 

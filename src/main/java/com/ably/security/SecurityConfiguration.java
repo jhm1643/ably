@@ -24,8 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -52,9 +50,16 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChainForJwtAuth(HttpSecurity http) throws Exception{
         return commonConfigure(http)
-                .authorizeHttpRequests(e -> e.anyRequest().hasAuthority(RoleType.USER_ROLE.name()))
+                .authorizeHttpRequests(e -> e
+                        .requestMatchers(
+                                baseUrl + "/member/withdrawal",
+                                baseUrl + "/member/my-info",
+                                baseUrl + "/wish/**",
+                                baseUrl + "/wish-draw/**")
+                        .hasAuthority(RoleType.USER_ROLE.name())
+                        .anyRequest().permitAll())
                 .addFilterBefore(new JwtAuthFilter(jwtProvider, authExceptionHandler), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -82,12 +87,7 @@ public class SecurityConfiguration {
         return web -> web.ignoring()
                 .requestMatchers(
                         PathRequest.toH2Console(),
-                        PathRequest.toStaticResources().atCommonLocations(),
-                        antMatcher("/v3/api-docs/**"),
-                        antMatcher("/swagger-ui/**"),
-                        antMatcher("/swagger-ui.html"),
-                        antMatcher(baseUrl + "/user/sign-up"),
-                        antMatcher(baseUrl + "/user/sign-in")
+                        PathRequest.toStaticResources().atCommonLocations()
                 );
     }
 

@@ -1,12 +1,14 @@
 package com.ably.controller;
 
 import com.ably.config.annotation.AuthMemberId;
-import com.ably.dto.wish.request.WishSearchRequest;
 import com.ably.dto.wish.request.WishSaveRequest;
+import com.ably.dto.wish.request.WishSearchRequest;
 import com.ably.dto.wish.response.WishSearchResponse;
 import com.ably.service.WishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +22,13 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RequestMapping("/ably/api/wish")
 @Tag(name = "Wish API")
+@SecurityRequirement(name = "Bearer Authentication")
 public class WishController {
 
     private final WishService wishService;
 
-    @Operation(summary = "찜 추가")
+    @Operation(summary = "찜 추가",
+            responses = @ApiResponse(responseCode = "400", description = "다른 찜 서랍에 등록된 상품"))
     @PostMapping
     public void saveWish(
             @AuthMemberId Long memberId,
